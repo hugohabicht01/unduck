@@ -1,9 +1,17 @@
+<script src="../pages/settings.ts" type="module"></script>
 <div class="settings-container">
     <h1>Search Settings</h1>
 
     <div class="default-engine-section">
-        <label for="default-engine">Default Search Engine</label>
+        <label for="default-engine">Default Search Engine:</label>
         <input type="text" id="default-engine" placeholder="e.g. DuckDuckGo" />
+        <span id="error-message" class="error-message"></span>
+        <!-- Added error message element -->
+        <div class="engine-details" id="default-engine-details">
+            <div>Name: <span id="default-engine-name"></span></div>
+            <div>Domain: <span id="default-engine-domain"></span></div>
+            <div>URL: <span id="default-engine-url"></span></div>
+        </div>
     </div>
 
     <div class="custom-engines-section">
@@ -11,30 +19,105 @@
         <table class="engines-table">
             <thead>
                 <tr>
-                    <th>Engine Name</th>
-                    <th>Shortcut</th>
-                    <th>Action</th>
+                    <th>Name (s)</th>
+                    <th>Tag (t)</th>
+                    <th>Domain (d)</th>
+                    <th>URL Template (u)</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr>
-                    <td>DuckDuckGo</td>
-                    <td>!d</td>
-                    <td><button class="delete-btn">×</button></td>
+            <tbody id="custom-engines-tbody">
+                <!-- Rows will be populated by JS -->
+                <!-- Example Row Structure (for reference):
+                <tr data-tag="example">
+                    <td class="engine-name"><span>My Search</span><input type="text" value="My Search" class="edit-input" style="display: none;"></td>
+                    <td class="engine-tag"><span>ex</span><input type="text" value="ex" class="edit-input" style="display: none;"></td>
+                    <td class="engine-domain"><span>example.com</span><input type="text" value="example.com" class="edit-input" style="display: none;"></td>
+                    <td class="engine-url"><span>https://example.com/?q={{{s}}}</span><input type="text" value="https://example.com/?q={{{s}}}" class="edit-input" style="display: none;"></td>
+                    <td class="actions">
+                        <button class="edit-btn">Edit</button>
+                        <button class="save-btn" style="display: none;">Save</button>
+                        <button class="cancel-btn" style="display: none;">Cancel</button>
+                        <button class="delete-btn">Delete</button>
+                    </td>
                 </tr>
-                <tr>
-                    <td>Wikipedia</td>
-                    <td>!w</td>
-                    <td><button class="delete-btn">×</button></td>
-                </tr>
+                 -->
             </tbody>
         </table>
 
-        <button class="add-engine-btn">+ Add New Engine</button>
+        <form class="add-engine-form-container">
+            <h3>Add New Custom Engine</h3>
+            <div id="add-engine-error" class="error-message"></div>
+            <div class="form-group">
+                <label for="new-engine-name">Engine Name:</label>
+                <input
+                    type="text"
+                    id="new-engine-name"
+                    placeholder="e.g., My Cool Search"
+                />
+            </div>
+            <div class="form-group">
+                <label for="new-engine-tag">Shortcut Tag:</label>
+                <input
+                    type="text"
+                    id="new-engine-tag"
+                    placeholder="tag (e.g., mc)"
+                />
+            </div>
+            <div class="form-group">
+                <label for="new-engine-domain"
+                    >Domain (without protocol):</label
+                >
+                <input
+                    type="text"
+                    id="new-engine-domain"
+                    placeholder="domain.com"
+                />
+            </div>
+            <div class="form-group">
+                <label for="new-engine-url"
+                    >Search URL (use {{{s}}} for query):</label
+                >
+                <input
+                    type="text"
+                    id="new-engine-url"
+                    placeholder="https://domain.com/search?q={{{s}}}"
+                />
+            </div>
+            <input
+                type="submit"
+                id="add-engine-btn"
+                class="add-engine-btn"
+                value="+ Add Engine"
+            />
+        </form>
+    </div>
+
+    <div class="search-bangs-section">
+        <h3>Search Available Bangs</h3>
+        <input
+            type="text"
+            placeholder="Search available bangs"
+            id="bangs-search-input"
+        />
+        <div class="bangs-list-container">
+            <ul id="bangs-list"></ul>
+        </div>
     </div>
 </div>
 
 <style>
+    .bangs-list-container {
+        margin: 0 2em;
+    }
+    .search-bangs-section {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        margin-top: 40px;
+        padding-top: 20px;
+        border-top: 1px solid #eceff1;
+    }
     .settings-container {
         max-width: 800px;
         margin: 40px auto;
@@ -129,5 +212,95 @@
 
     .add-engine-btn:hover {
         background: #cfd8dc;
+    }
+    .error-message {
+        color: red;
+        font-size: 0.8em;
+        margin-top: 4px;
+        display: block; /* Ensure it takes up space */
+        min-height: 1em; /* Prevent layout shifts when empty */
+    }
+
+    .engine-details {
+        margin-top: 10px;
+        font-size: 0.9em;
+        color: #546e7a;
+        padding-left: 5px; /* Slight indent */
+        border-left: 2px solid #eceff1; /* Visual separation */
+    }
+
+    .engine-details div {
+        margin-bottom: 4px;
+    }
+
+    #default-engine-url {
+        word-break: break-all;
+    }
+
+    .add-engine-form-container {
+        margin-top: 40px;
+        padding-top: 20px;
+        border-top: 1px solid #eceff1;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-group label {
+        font-weight: 500;
+        margin-bottom: 5px;
+    }
+
+    h3 {
+        color: #34495e;
+        font-size: 1.1em;
+        margin-bottom: 20px;
+        font-weight: 500;
+    }
+
+    /* --- Inline Edit Styles --- */
+    .engines-table td .edit-input {
+        width: calc(100% - 16px); /* Adjust width as needed */
+        padding: 4px 8px;
+        font-size: inherit;
+        border: 1px solid #90a4ae;
+        background-color: #fff;
+    }
+
+    .engines-table td span {
+        display: inline-block; /* Ensure span takes block space */
+        min-height: 1.2em; /* Prevent layout jump */
+        padding: 4px 0; /* Align with input padding */
+        word-break: break-all; /* Prevent long URLs from breaking layout */
+    }
+
+    .engines-table td.actions button {
+        margin-right: 5px;
+        padding: 4px 8px;
+        font-size: 0.9em;
+        cursor: pointer;
+    }
+    .engines-table td.actions .delete-btn {
+        background: none;
+        border: 1px solid transparent; /* Maintain layout */
+        color: #e57373; /* Make delete more prominent */
+        padding: 4px 8px;
+    }
+    .engines-table td.actions .delete-btn:hover {
+        background: #fee;
+        border-color: #e57373;
+    }
+    .engines-table td.actions .edit-btn,
+    .engines-table td.actions .save-btn,
+    .engines-table td.actions .cancel-btn {
+        background: #f5f7f8;
+        border: 1px solid #cfd8dc;
+        color: #546e7a;
+    }
+    .engines-table td.actions .edit-btn:hover,
+    .engines-table td.actions .save-btn:hover,
+    .engines-table td.actions .cancel-btn:hover {
+        background: #eceff1;
     }
 </style>
