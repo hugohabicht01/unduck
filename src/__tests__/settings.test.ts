@@ -2,13 +2,11 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 
 // Mock the bangs import before any other imports
 vi.mock("../bang", () => ({
-  bangs: [
-    { t: "test", d: "Test Bang", u: "https://test.com" },
-  ],
+  bangs: [{ t: "test", d: "Test Bang", u: "https://test.com" }],
 }));
 
 // Import real bangs for reference in some tests
-const realBangs = await import("../bang").then(module => module.bangs);
+const realBangs = await import("../bang").then((module) => module.bangs);
 
 // Mock localStorage
 const localStorageMock = (() => {
@@ -56,19 +54,27 @@ describe("settings", () => {
 
   describe("mergeBangs", () => {
     it("combines two bang objects", () => {
-      const bang1 = { a: { t: "a", u: "https://a.com" } };
-      const bang2 = { b: { t: "b", u: "https://b.com" } };
+      const bang1 = {
+        a: { t: "a", u: "https://a.com", s: "someengine", d: "a.com" },
+      };
+      const bang2 = {
+        b: { t: "b", u: "https://b.com", s: "someengine", d: "b.com" },
+      };
       expect(mergeBangs(bang1, bang2)).toEqual({
-        a: { t: "a", u: "https://a.com" },
-        b: { t: "b", u: "https://b.com" },
+        a: { t: "a", u: "https://a.com", s: "someengine", d: "a.com" },
+        b: { t: "b", u: "https://b.com", s: "someengine", d: "b.com" },
       });
     });
 
     it("right object overwrites left object properties", () => {
-      const bang1 = { a: { t: "a", u: "https://a.com" } };
-      const bang2 = { a: { t: "a", u: "https://b.com" } };
+      const bang1 = {
+        a: { t: "a", u: "https://a.com", s: "someengine", d: "a.com" },
+      };
+      const bang2 = {
+        a: { t: "a", u: "https://b.com", s: "someengine", d: "b.com" },
+      };
       expect(mergeBangs(bang1, bang2)).toEqual({
-        a: { t: "a", u: "https://b.com" },
+        a: { t: "a", u: "https://b.com", s: "someengine", d: "b.com" },
       });
     });
   });
