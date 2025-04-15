@@ -59,12 +59,7 @@ const CUSTOM_BANGS_KEY = "customBangs";
  * Validates a potential custom bang object.
  * Returns null if valid, or an error message string if invalid.
  */
-export function validateCustomBang(
-  bang: CustomBangInput,
-  existingBangs: BangLookupType,
-  isUpdate: boolean = false,
-  originalTag?: string, // Required if isUpdate is true and tag might change
-): string | null {
+export function validateCustomBang(bang: CustomBangInput): string | null {
   const currentTag = bang.t.startsWith("!") ? bang.t.slice(1) : bang.t;
 
   if (!currentTag || !bang.s || !bang.d || !bang.u) {
@@ -73,13 +68,7 @@ export function validateCustomBang(
   if (!/^[a-z0-9]+$/.test(currentTag)) {
     return "Tag must contain only lowercase letters and numbers.";
   }
-  // Check if the tag exists, but only if it's not the original tag during an update
-  if (
-    currentTag in existingBangs &&
-    (!isUpdate || currentTag !== originalTag)
-  ) {
-    return `Tag '!${currentTag}' is already in use (either default or custom).`;
-  }
+
   if (bang.d.startsWith("http")) {
     return "Domain should not include protocol (http/https).";
   }

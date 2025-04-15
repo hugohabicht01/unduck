@@ -45,7 +45,7 @@
             </tbody>
         </table>
 
-        <form class="add-engine-form-container">
+        <form class="add-engine-form-container" id="add-engine-form">
             <h3>Add New Custom Engine</h3>
             <div id="add-engine-error" class="error-message"></div>
             <div class="form-group">
@@ -53,6 +53,7 @@
                 <input
                     type="text"
                     id="new-engine-name"
+                    required
                     placeholder="e.g., My Cool Search"
                 />
             </div>
@@ -61,6 +62,7 @@
                 <input
                     type="text"
                     id="new-engine-tag"
+                    required
                     placeholder="tag (e.g., mc)"
                 />
             </div>
@@ -71,6 +73,7 @@
                 <input
                     type="text"
                     id="new-engine-domain"
+                    required
                     placeholder="domain.com"
                 />
             </div>
@@ -81,6 +84,7 @@
                 <input
                     type="text"
                     id="new-engine-url"
+                    required
                     placeholder="https://domain.com/search?q={{{s}}}"
                 />
             </div>
@@ -100,16 +104,41 @@
             placeholder="Search available bangs"
             id="bangs-search-input"
         />
-        <div class="bangs-list-container">
-            <ul id="bangs-list"></ul>
-        </div>
+        <table class="search-bangs-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Tag</th>
+                    <th>Domain</th>
+                </tr>
+            </thead>
+            <tbody id="bangs-list-table"></tbody>
+        </table>
     </div>
 </div>
 
 <style>
-    .bangs-list-container {
-        margin: 0 2em;
+    .search-bangs-table {
+        margin-top: 2em;
+        margin-bottom: 10em;
+
+        border-collapse: collapse;
+        width: 100%;
+        text-align: left;
     }
+    .search-bangs-table th,
+    .search-bangs-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #eceff1;
+    }
+
+    .search-bangs-table th {
+        color: #546e7a;
+        font-weight: 500;
+        background: #f5f7f8;
+    }
+
     .search-bangs-section {
         display: flex;
         flex-direction: column;
@@ -117,6 +146,7 @@
         margin-top: 40px;
         padding-top: 20px;
         border-top: 1px solid #eceff1;
+        min-height: 80vh;
     }
     .settings-container {
         max-width: 800px;

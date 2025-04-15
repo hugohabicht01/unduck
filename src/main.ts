@@ -101,6 +101,7 @@ function settingsPageRender() {
   const addEngineButton =
     app.querySelector<HTMLButtonElement>("#add-engine-btn");
   const addEngineError = app.querySelector<HTMLDivElement>("#add-engine-error");
+  const addEngineForm = app.querySelector<HTMLFormElement>("#add-engine-form");
 
   // Input fields for adding
   const newNameInput = app.querySelector<HTMLInputElement>("#new-engine-name");
@@ -113,11 +114,13 @@ function settingsPageRender() {
   const searchBangsInput = app.querySelector<HTMLInputElement>(
     "#bangs-search-input",
   );
-  const searchBangsList = app.querySelector<HTMLUListElement>("#bangs-list");
+  const searchBangsTable =
+    app.querySelector<HTMLTableSectionElement>("#bangs-list-table");
 
   if (
     !customEnginesTbody ||
     !addEngineButton ||
+    !addEngineForm ||
     !addEngineError ||
     !newNameInput ||
     !newTagInput ||
@@ -134,7 +137,9 @@ function settingsPageRender() {
   renderCustomEnginesTable(getCustomBangs(), customEnginesTbody);
 
   // Event Listener for Adding Custom Bangs
-  addEngineButton.addEventListener("click", () => {
+  addEngineForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+
     addEngineError.textContent = ""; // Clear previous error
 
     const newBangData = {
@@ -144,20 +149,19 @@ function settingsPageRender() {
       u: newUrlInput.value.trim(),
     };
 
-    const validationError = validateCustomBang(newBangData, currentAllBangs);
+    const validationError = validateCustomBang(newBangData);
 
     if (validationError) {
       addEngineError.textContent = validationError;
-    } else {
-      const updatedCustomBangs = saveCustomBang(newBangData);
-      currentAllBangs = loadBangs(); // Reload ALL bangs after saving
-      renderCustomEnginesTable(updatedCustomBangs, customEnginesTbody);
-      // Clear form
-      newNameInput.value = "";
-      newTagInput.value = "";
-      newDomainInput.value = "";
-      newUrlInput.value = "";
+      return;
     }
+
+    const updatedCustomBangs = saveCustomBang(newBangData);
+    currentAllBangs = loadBangs(); // Reload ALL bangs after saving
+    renderCustomEnginesTable(updatedCustomBangs, customEnginesTbody);
+
+    // Clear form
+    addEngineForm.reset();
   });
 
   // Event Listener for Deleting Custom Bangs (using delegation)
@@ -225,11 +229,14 @@ function settingsPageRender() {
   searchBangsInput?.addEventListener("input", (event: Event) => {
     const inputElement = event.target as HTMLInputElement;
     const value = inputElement.value;
-    if (!searchBangsList) return;
+    if (!searchBangsTable) return;
 
     if (value === "") {
       // don't display anything if we're filtering very little, the list is too large
-      searchBangsList.replaceChildren();
+
+      const emptyTr = document.createElement("tr");
+      emptyTr.textContent = "Please enter search term";
+      searchBangsTable.replaceChildren(emptyTr);
       return;
     }
 
@@ -239,12 +246,22 @@ function settingsPageRender() {
       .sort((a, b) => a.localeCompare(b));
 
     // render the filtered bangs
-    searchBangsList.replaceChildren(
+    searchBangsTable.replaceChildren(
       ...filteredBangs.map((key) => {
-        const li = document.createElement("li");
-        const formatted = `${allBangs[key].d}: !${key}`;
-        li.textContent = formatted;
-        return li;
+        const row = document.createElement("tr");
+        const nameCell = document.createElement("td");
+        const tagCell = document.createElement("td");
+        const domainCell = document.createElement("td");
+
+        nameCell.textContent = allBangs[key].s;
+        tagCell.textContent = `!${key}`;
+        domainCell.textContent = allBangs[key].d;
+
+        row.appendChild(nameCell);
+        row.appendChild(tagCell);
+        row.appendChild(domainCell);
+
+        return row;
       }),
     );
   });
